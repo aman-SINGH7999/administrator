@@ -9,7 +9,7 @@ const SchoolSchema = new Schema<ISchool>(
 
     registerId: { type: String, unique: true, required: true },
     email: { type: String, unique: true, required: true, lowercase: true },
-    phone: { type: String },
+    phone: { type: String, required:true },
     address: { type: String },
 
     createdBy: { type: Schema.Types.ObjectId, ref: "User" },

@@ -33,7 +33,7 @@ const UserSchema = new Schema<IUser>(
       },
     },
 
-    password: { type: String, required: true },
+    password: { type: String, required: true, minlength: 8 },
 
     role: {
       type: String,
@@ -76,6 +76,7 @@ const UserSchema = new Schema<IUser>(
   },
   { timestamps: true }
 );
+
 
 // Duplicate model problem se bachne ke liye
 export const User: Model<IUser> =

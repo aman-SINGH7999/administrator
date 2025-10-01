@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 type Props = {
   onSuccess?: () => void;
@@ -24,12 +25,12 @@ export default function AdminLogin({ onSuccess }: Props) {
   const router = useRouter();
 
   const validate = () => {
-    if (!email) return "Email darj karein.";
+    if (!email) return "Email Required.";
     // basic email regex
     const re = /^\S+@\S+\.\S+$/;
-    if (!re.test(email)) return "Sahi email format dalen.";
-    if (!password) return "Password darj karein.";
-    if (password.length < 6) return "Password kam se kam 6 characters ka hona chahiye.";
+    if (!re.test(email)) return "Email is not correct.";
+    if (!password) return "Password Required.";
+    if (password.length < 8) return "Password must have minimum 8 characters.";
     return null;
   };
 
@@ -45,22 +46,22 @@ export default function AdminLogin({ onSuccess }: Props) {
     setLoading(true);
     try {
       // Example: POST to /api/admin/login (create this endpoint on server)
-      const res = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, remember }),
-      });
+      const res = await axios.post("/api/auth/login", { email, password, remember });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.message || "Login failed");
+      if (res.data.success) {
+        // save token in localStorage (or cookies)
+        localStorage.setItem("token", res.data.token);
+
+        alert("✅ Login successful!");
+        console.log("User:", res.data.user);
       }
 
       // successful login
       if (onSuccess) onSuccess();
       // optionally redirect: use next/navigation's useRouter in parent or handle here
     } catch (err: any) {
-      setError(err.message || "Kuchh galat hua. Dobara koshish karein.");
+      console.error(err);
+      setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }

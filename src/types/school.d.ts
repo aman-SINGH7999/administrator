@@ -6,7 +6,7 @@ export interface ISchool extends Document {
   type: "school" | "e-school";
   registerId: string; // e.g., SCH-1001
   email: string;
-  phone?: string;
+  phone: string;
   address?: string;
   createdBy?: Types.ObjectId; // ref to User
   createdAt: Date;
