@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
+import axios from "axios";
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState<"email" | "otp">("email");
@@ -24,21 +26,15 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-    //   const res = await fetch("/api/auth/forgot-password", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ email }),
-    //   });
+      const res = await axios.post("/api/auth/forgot-password", {email});
 
-    //   const data = await res.json();
-    //   if (!res.ok) throw new Error(data.message || "Failed to send OTP");
-
-      await new Promise((res) => setTimeout(res, 1000)); // fake delay
-
-      setSuccess("OTP aapke email par bheja gaya hai.");
-      setStep("otp");
+      if (res.data.success){
+        setSuccess("OTP aapke email par bheja gaya hai.");
+        setStep("otp");
+      }
+      
     } catch (err: any) {
-      setError(err.message);
+      setError(err.response?.data?.message || "Email Not sent.");
     } finally {
       setLoading(false);
     }
@@ -50,23 +46,17 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-    //   const res = await fetch("/api/auth/reset-password", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ email, otp, password }),
-    //   });
+      const res = await axios.put("/api/auth/forgot-password", { email, otp, password });
 
-    //   const data = await res.json();
-    //   if (!res.ok) throw new Error(data.message || "Failed to reset password");
 
-      setSuccess("Password reset successful. Ab login karein.");
+      setSuccess("Password reset successful");
       setStep("email");
       setEmail("");
       setOtp("");
       setPassword("");
       router.push("/login")
     } catch (err: any) {
-      setError(err.message);
+      setError(err.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -76,7 +66,10 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-xl">Forgot Password</CardTitle>
+          <CardTitle className="text-xl flex justify-between items-center">
+            <span>Forgot Password</span> 
+            <Button onClick={()=> router.push("/login")} variant="ghost"><X style={{width:"24px", height:"24px"}}/></Button>
+          </CardTitle>
         </CardHeader>
 
         <CardContent>

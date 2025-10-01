@@ -15,6 +15,7 @@ export interface IUser {
   rollNo?: string; // only for students
   password: string;
   role: UserRole;
+  resetOtp?: string;
   lastLogin?: Date;
   isActive?: boolean;
 

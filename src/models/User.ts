@@ -71,6 +71,7 @@ const UserSchema = new Schema<IUser>(
       phone: String,
       gender: { type: String, enum: ["male", "female", "other"] },
     },
+    resetOtp: {type: String},
     lastLogin: { type: Date, default: null },
     isActive: { type: Boolean, default: true },
   },
