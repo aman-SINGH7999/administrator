@@ -10,11 +10,9 @@ import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
-type Props = {
-  onSuccess?: () => void;
-};
 
-export default function AdminLogin({ onSuccess }: Props) {
+
+export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,18 +44,17 @@ export default function AdminLogin({ onSuccess }: Props) {
     setLoading(true);
     try {
       // Example: POST to /api/admin/login (create this endpoint on server)
-      const res = await axios.post("/api/auth/login", { email, password, remember });
+      const res = await axios.post("/api/auth/login", { email, password, remember }, { withCredentials: true });
 
       if (res.data.success) {
         // save token in localStorage (or cookies)
-        localStorage.setItem("token", res.data.token);
-
-        alert("✅ Login successful!");
+        localStorage.setItem("user", JSON.stringify(res.data.user));
         console.log("User:", res.data.user);
+        router.push('/dashboard')
       }
 
       // successful login
-      if (onSuccess) onSuccess();
+      
       // optionally redirect: use next/navigation's useRouter in parent or handle here
     } catch (err: any) {
       console.error(err);

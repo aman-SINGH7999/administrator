@@ -5,7 +5,7 @@ import { ISchool } from "@/types/school";
 const SchoolSchema = new Schema<ISchool>(
   {
     name: { type: String, required: true, trim: true },
-    type: { type: String, enum: ["school", "e-school"], required: true },
+    owner: { type: String, required: true },
 
     registerId: { type: String, unique: true, required: true },
     email: { type: String, unique: true, required: true, lowercase: true },

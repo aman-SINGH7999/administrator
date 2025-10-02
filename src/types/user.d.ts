@@ -13,7 +13,7 @@ export interface IUser {
   name: string;
   email?: string;
   rollNo?: string; // only for students
-  password: string;
+  password?: string;
   role: UserRole;
   resetOtp?: string;
   lastLogin?: Date;

@@ -3,7 +3,7 @@ import { Document, Types } from "mongoose";
 
 export interface ISchool extends Document {
   name: string;
-  type: "school" | "e-school";
+  owner: string;
   registerId: string; // e.g., SCH-1001
   email: string;
   phone: string;
