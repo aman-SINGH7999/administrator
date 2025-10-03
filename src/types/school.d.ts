@@ -8,7 +8,9 @@ export interface ISchool extends Document {
   email: string;
   phone: string;
   address?: string;
+  city?: string;
+  state?:string;
   createdBy?: Types.ObjectId; // ref to User
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

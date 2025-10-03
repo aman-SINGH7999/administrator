@@ -9,6 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useAppDispatch } from "@/store/hooks";
+import { setUser } from "@/store/slices/authSlice";
 
 
 
@@ -21,6 +23,7 @@ export default function AdminLogin() {
   const [error, setError] = useState<string | null>(null);
   
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const validate = () => {
     if (!email) return "Email Required.";
@@ -49,6 +52,7 @@ export default function AdminLogin() {
       if (res.data.success) {
         // save token in localStorage (or cookies)
         localStorage.setItem("user", JSON.stringify(res.data.user));
+        dispatch(setUser(res.data.user));
         console.log("User:", res.data.user);
         router.push('/dashboard')
       }

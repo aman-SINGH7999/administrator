@@ -11,7 +11,8 @@ const SchoolSchema = new Schema<ISchool>(
     email: { type: String, unique: true, required: true, lowercase: true },
     phone: { type: String, required:true },
     address: { type: String },
-
+    city: { type:String },
+    state: { type:String },
     createdBy: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }

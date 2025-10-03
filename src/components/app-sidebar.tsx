@@ -1,4 +1,4 @@
-import { Calendar, Ghost, HatGlasses, Home, Inbox, IndianRupee, LayoutDashboard, Package, School, Search, Settings, Users } from "lucide-react"
+import { IndianRupee, LayoutDashboard, Package, School, Search, Settings, Users } from "lucide-react"
 
 import {
   Sidebar,

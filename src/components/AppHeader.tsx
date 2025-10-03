@@ -1,13 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card } from "./ui/card";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { IUser } from "@/types/user";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearUser } from "@/store/slices/authSlice";
+import { usePathname } from "next/navigation";
 
 type HeaderProps = {
   title: string;
@@ -15,18 +18,21 @@ type HeaderProps = {
   avatarUrl?: string;  // optional avatar
 };
 
-export function AppHeader({ title }: HeaderProps) {
+export function AppHeader({ title="Header" }: HeaderProps) {
     const [showOptions, setShowOptions] = useState(false);
-    const [user, setUser] = useState<IUser | null>(null);
+    const user = useAppSelector((state) => state.auth.user); 
     const router = useRouter();
+    const dispatch = useAppDispatch();
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
+    const pathname = usePathname();
   
-      // Load user from localStorage on client-side only
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-        setUser(JSON.parse(storedUser));
-        }
-    }, []);
+    //   // Load user from localStorage on client-side only
+    // useEffect(() => {
+    //     const storedUser = localStorage.getItem("user");
+    //     if (storedUser) {
+    //     setUser(JSON.parse(storedUser));
+    //     }
+    // }, []);
     
     // Generate initials
     console.log("parsed user: ", user);
@@ -36,11 +42,28 @@ export function AppHeader({ title }: HeaderProps) {
         .slice(0, 2)
         .join("");
 
+
+     //  outside click handler
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowOptions(false);
+      }
+    };
+    if (showOptions) {
+      window.addEventListener("click", handleClickOutside);
+    }
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, [showOptions]);
+
     
     const handleLogout = async ()=>{
         try{
             const res = await axios.post('/api/auth/logout', {}, { withCredentials: true });
             localStorage.removeItem("user");
+            dispatch(clearUser());
             router.push("/login");
         }catch(err){
             console.log(err)
@@ -53,7 +76,7 @@ export function AppHeader({ title }: HeaderProps) {
       <h1 className="text-xl font-semibold text-gray-800 pl-5">{title}</h1>
 
       {/* Right: Avatar / Initials */}
-      <div className="relative" onClick={()=> setShowOptions(!showOptions)}>
+      <div className="relative" ref={dropdownRef} onClick={()=> setShowOptions(!showOptions)}>
         {user?.profile?.avatar ? (
           <Image
             src={user?.profile?.avatar}
@@ -69,7 +92,7 @@ export function AppHeader({ title }: HeaderProps) {
         )}
       </div>
 
-      <Card className={showOptions ? 'absolute right-5 top-15 block w-36 p-2' : "hidden"}>
+      <Card className={showOptions ? 'absolute right-5 top-14 block w-36 p-2' : "hidden"}>
         <ul className="flex flex-col space-y-0.5">
             <li>
             <Link
