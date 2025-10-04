@@ -31,6 +31,7 @@ export async function middleware(req: NextRequest) {
      const { payload } = await jwtVerify(token, secretKey);
     
      // 👉 Optionally, pass user info to downstream handlers
+     console.log("payload: ", payload);
     const res = NextResponse.next();
     if (payload?.userId) res.headers.set("x-user-id", String(payload.userId));
     if (payload?.role) res.headers.set("x-user-role", String(payload.role));

@@ -6,14 +6,13 @@ const SchoolSchema = new Schema<ISchool>(
   {
     name: { type: String, required: true, trim: true },
     owner: { type: String, required: true },
-
-    registerId: { type: String, unique: true, required: true },
+    schoolCode: { type: String, unique: true, required: true },
     email: { type: String, unique: true, required: true, lowercase: true },
     phone: { type: String, required:true },
     address: { type: String },
-    city: { type:String },
-    state: { type:String },
-    createdBy: { type: Schema.Types.ObjectId, ref: "User" },
+    city: { type:String, required:true },
+    state: { type:String, required:true },
+    createdBy: { type: Schema.Types.ObjectId, ref: "User", required:true },
   },
   { timestamps: true }
 );
