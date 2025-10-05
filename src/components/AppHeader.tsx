@@ -73,7 +73,7 @@ export function AppHeader({ title="Header" }: HeaderProps) {
   return (
     <header className="w-full bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm mt-0">
       {/* Left: Page title */}
-      <h1 className="text-xl font-semibold text-gray-800 pl-5">{title}</h1>
+      <h1 className="text-xl font-semibold text-gray-800 ml-11">{title}</h1>
 
       {/* Right: Avatar / Initials */}
       <div className="relative" ref={dropdownRef} onClick={()=> setShowOptions(!showOptions)}>

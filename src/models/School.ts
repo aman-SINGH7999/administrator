@@ -12,6 +12,12 @@ const SchoolSchema = new Schema<ISchool>(
     address: { type: String },
     city: { type:String, required:true },
     state: { type:String, required:true },
+    status: { 
+      type: String, 
+      enum: ["active", "inactive", "pending", "suspended", "delete"], 
+      default: "pending" 
+    },
+    otherInfo: { type: String },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required:true },
   },
   { timestamps: true }

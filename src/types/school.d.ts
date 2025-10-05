@@ -10,6 +10,8 @@ export interface ISchool extends Document {
   address?: string;
   city?: string;
   state?:string;
+  status: "active" | "inactive" | "pending" | "suspended" | "delete";
+  otherInfo?: string;
   createdBy?: Types.ObjectId; // ref to User
   createdAt?: Date;
   updatedAt?: Date;

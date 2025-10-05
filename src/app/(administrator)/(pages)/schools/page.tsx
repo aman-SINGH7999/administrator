@@ -1,11 +1,10 @@
 'use client'
 
 import { AppHeader } from '@/components/AppHeader'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input"
-import SelectFilter from '@/components/SelectFilter'
 import { Ellipsis, Plus, Search } from 'lucide-react'
 import {
   Table,
@@ -17,18 +16,21 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card } from '@/components/ui/card'
-import { schools, statesWithCities } from '@/data'
+import { statesWithCities } from '@/data'
 import { Checkbox } from '@/components/ui/checkbox'
 import Link from 'next/link'
 import { Pagination } from "@/components/Pagination";
 import { Modal } from "@/components/Modal";
 import axios from "axios";
 import { ComboBox } from '@/components/SearchableDropdown';
+import { ISchool } from '@/types/school';
+import { TableSkeleton } from '@/components/Skeletons';
 
 
 
-export default function page() {
+export default function Page() {
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +38,9 @@ export default function page() {
   const [city, setCity] = useState<string>("");
   const [state, setState] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
+  const [schools, setSchools] = useState<ISchool[]>([]);
+
+
 
   const [form, setForm] = useState({
     name: "",
@@ -47,38 +52,73 @@ export default function page() {
     state: "",
   });
 
-  const totalPages = 10;
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setError(null);
-      setSuccess(null);
-      setLoading(true);
+const fetchSchools = async () => {
+  setLoading(true);
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: "10",
+    });
+    if (searchValue) params.append("searchValue", searchValue);
+    if (city) params.append("city", city);
+    if (state) params.append("state", state);
 
-      try {
-        const res = await axios.post("/api/schools", form);
+    const res = await axios.get(`/api/schools?${params.toString()}`, { withCredentials: true });
+    setSchools(res.data.data);
+    setTotalPages(res.data.pagination.totalPages);
+  } catch (err) {
+    console.log("Error in fetching data: ", err);
+  } finally {
+    setLoading(false);
+  }
+}
+useEffect(() => {
+  fetchSchools();
+}, [page, city, state]);
 
-        if (res.data.success) {
-          setSuccess("School registered successfully!");
-          setForm({
-            name: "",
-            owner: "",
-            email: "",
-            phone: "",
-            address: "",
-            city: "",
-            state: "",
-          });
-        }
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to register school");
-      } finally {
-        setLoading(false);
+
+
+  const handleFilter = async ()=>{
+    setPage(1);
+    fetchSchools();
+  }
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+
+    try {
+      const res = await axios.post("/api/schools", form);
+
+      if (res.data.success) {
+        setSuccess("School registered successfully!");
+        setOpen(false);
+        setForm({
+          name: "",
+          owner: "",
+          email: "",
+          phone: "",
+          address: "",
+          city: "",
+          state: "",
+        });
       }
-    };
+    } catch (err: unknown) {
+      let message = "Error in register school";
+      if (err instanceof Error) message = err.message;
+      setError(message || "Error in register school");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 
@@ -131,11 +171,12 @@ export default function page() {
             type="text"
             value={searchValue}
             onChange={(e)=> setSearchValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleFilter()}
             placeholder="Search schools here..."
             className="flex-1 min-w-[100px]"
           />
 
-          <Button type="submit" variant="outline">
+          <Button onClick={handleFilter} variant="outline">
             <Search className="h-4 w-4" />
           </Button>
         </div>
@@ -157,7 +198,7 @@ export default function page() {
        {/* Table data */}
        <Card className='p-2 m-2 mx-5'>
         <Table>
-          <TableCaption>A list of your recent invoices.</TableCaption>
+          <TableCaption>{loading ? "Loading..." : "A list of your recent invoices."} </TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Invoice</TableHead>
@@ -169,21 +210,25 @@ export default function page() {
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            { schools.map((school)=>{
-                return (
-                  <TableRow key={school.registerId}>
-                    <TableCell><Checkbox className='cursor-pointer' /></TableCell>
-                    <TableCell><Link href={"#"} className='text-sky-800 font-medium'>{school.name}</Link></TableCell>
-                    <TableCell>{school.email}</TableCell>
-                    <TableCell>{school.phone}</TableCell>
-                    <TableCell>{school.city}</TableCell>
-                    <TableCell>{school.state}</TableCell>
-                    <TableCell className="float-right pr-5"><Ellipsis className='cursor-pointer hover:bg-gray-300 rounded-xl' /></TableCell>
-                  </TableRow>
-                )
-              })}
-          </TableBody>
+          {
+            loading ? <TableSkeleton rows={5} columns={7} /> :
+            <TableBody>
+              {schools.map((school)=>{
+                  return (
+                    <TableRow key={school.schoolCode}>
+                      <TableCell><Checkbox className='cursor-pointer' /></TableCell>
+                      <TableCell><Link href={"#"} className='text-sky-800 font-medium'>{school.name}</Link></TableCell>
+                      <TableCell>{school.email}</TableCell>
+                      <TableCell>{school.phone}</TableCell>
+                      <TableCell>{school.city}</TableCell>
+                      <TableCell>{school.state}</TableCell>
+                      <TableCell className="float-right pr-5"><Ellipsis className='cursor-pointer hover:bg-gray-300 rounded-xl' /></TableCell>
+                    </TableRow>
+                  )
+                }) 
+              }
+            </TableBody>
+          }
         </Table>
        </Card>
 

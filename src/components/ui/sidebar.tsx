@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, VariantProps } from "class-variance-authority"
-import { PanelLeftIcon } from "lucide-react"
+import { ChevronLeft, ChevronRight, PanelLeftIcon } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import Image from "next/image"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -258,7 +259,7 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, open } = useSidebar()
 
   return (
     <Button
@@ -273,7 +274,20 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon />
+      <div className="flex">
+        {
+          open ?
+          <>
+          <ChevronLeft style={{ width: 25, height: 25 }}/>
+          <Image src={'/logo.png'} width={30} height={30} alt={`${<PanelLeftIcon />}` }  className=""/>
+          </> :
+          <>
+          <Image src={'/logo.png'} width={30} height={30} alt={`${<PanelLeftIcon />}` }  className=""/>
+          <ChevronRight style={{ width: 25, height: 25 }}/>
+          </>
+        }
+      </div>
+      
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
