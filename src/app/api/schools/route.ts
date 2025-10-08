@@ -5,15 +5,20 @@ import { sendEmail } from "@/lib/mailer";
 import { checkRole } from "@/lib/utils";
 import type { FilterQuery } from "mongoose";
 import type { ISchool } from "@/types/school";
+import { verifyAuth } from "@/lib/auth";
+import RegistrationSuccessTemplate from "@/components/mails/RegistrationSuccessTemplate";
 
 export async function POST(req: NextRequest) {
+  const auth = await verifyAuth(req);
+   if (auth instanceof NextResponse) return auth;
+   const { userId, role } = auth;
+  console.log("Authenticated User:", userId, "Role:", role);
+
   try {
     await connectDB();
 
     const body = await req.json();
     const { name, owner, email, phone, address, city, state } = body;
-    const userId = req.headers.get('x-user-id');
-    const role = req.headers.get('x-user-role');
     if (!checkRole(role, ["admin", "super_admin"])) {
       return NextResponse.json({ success: false, message: "Access denied" }, { status: 403 });
     }
@@ -58,7 +63,7 @@ export async function POST(req: NextRequest) {
       createdBy : userId,
     });
 
-    await sendEmail(email, "School registration", "Your school is registered");
+    await sendEmail(email, "School registration", RegistrationSuccessTemplate(name, owner));
     return NextResponse.json({ success: true, data: newSchool }, { status: 201 });
   } catch (error) {
     console.error("Register school error:", error);

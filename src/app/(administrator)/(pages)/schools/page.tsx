@@ -217,12 +217,14 @@ useEffect(() => {
                   return (
                     <TableRow key={school.schoolCode}>
                       <TableCell><Checkbox className='cursor-pointer' /></TableCell>
-                      <TableCell><Link href={"#"} className='text-sky-800 font-medium'>{school.name}</Link></TableCell>
+                      <TableCell><Link href={`/schools/${school._id}`} className='text-sky-800 font-medium'>{school.name}</Link></TableCell>
                       <TableCell>{school.email}</TableCell>
                       <TableCell>{school.phone}</TableCell>
                       <TableCell>{school.city}</TableCell>
                       <TableCell>{school.state}</TableCell>
-                      <TableCell className="float-right pr-5"><Ellipsis className='cursor-pointer hover:bg-gray-300 rounded-xl' /></TableCell>
+                      <TableCell className="float-right pr-5">
+                        <Ellipsis className='cursor-pointer hover:bg-gray-300 rounded-xl' />
+                      </TableCell>
                     </TableRow>
                   )
                 }) 

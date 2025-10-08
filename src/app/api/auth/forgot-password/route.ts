@@ -5,6 +5,7 @@ import { User } from "@/models/User";
 import crypto from "crypto";
 import { sendEmail } from "@/lib/mailer";
 import bcrypt from "bcrypt";
+import OtpEmailTemplate from "@/components/mails/otpEmailTemplate";
 
 
 
@@ -34,10 +35,10 @@ export async function POST(req: NextRequest) {
     await user.save();
 
     // Send OTP email
-    await sendEmail(email,"Your OTP for Password Reset", `<p>Your OTP is <b>${otp}</b></p>` )
+    await sendEmail(email,"OTP for Password Reset", OtpEmailTemplate(otp) )
 
     return NextResponse.json({ success: true, message: "OTP sent to your email" });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Forgot password error:", error);
     return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
@@ -60,8 +61,8 @@ export async function PUT(req: NextRequest) {
     }
 
     console.log("user details: ", user);
-    const savedOtp: any = user?.resetOtp.slice(0, 6);
-    const savedExpiry: any = Number(user.resetOtp.slice(6));
+    const savedOtp = user?.resetOtp?.slice(0, 6);
+    const savedExpiry = Number(user?.resetOtp?.slice(6));
 
     console.log("user: ",otp)
     console.log("otp: ",savedOtp)
@@ -82,7 +83,7 @@ export async function PUT(req: NextRequest) {
     await user.save();
 
     return NextResponse.json({ success: true, message: "Password reset successful" });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Reset password error:", error);
     return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
