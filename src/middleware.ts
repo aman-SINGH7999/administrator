@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 // ✅ Public routes list
-const publicPaths = ["/api/auth/login", "/api/auth/forgot-password"];
+const publicPaths = ["/api/auth/login", "/api/auth/forgot-password", '/api/auth/school/login'];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
