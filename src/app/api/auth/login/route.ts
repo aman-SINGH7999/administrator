@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
-    const { email, password } = await req.json();
+    const { email, password, remember } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // password check
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password!);
     if (!isMatch) {
       return NextResponse.json(
         { success: false, message: "Invalid email or password" },
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
     );
 
     // create safe object
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...safeUser } = user.toObject(); // password remove ho gaya
 
     const res = NextResponse.json(
@@ -56,23 +57,20 @@ export async function POST(req: NextRequest) {
     // Token ko HttpOnly cookie me set karo
     res.cookies.set("token", token, {
       httpOnly: true,
-      secure: false, 
-      // secure: process.env.NODE_ENV === "production",
-      sameSite: "lax", //strict  or for multiple origen none
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       path: "/",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      /** for production **/ 
-      // secure: true,
-      // sameSite: "none"
+      maxAge: remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60,
     });
 
 
     return res;
-  } catch (error: any) {
-    console.error("Login error:", error);
+  } catch (err: unknown) {
+    if (err instanceof Error) console.error("Login error:", err.message);
+    else console.error("Login error:", err);
     return NextResponse.json(
-      { success: false,  message: "Internal server error" },
-      { status: 500 }
+      {  success: false, message: "Internal server error" },
+      { status: 500}
     );
   }
 }

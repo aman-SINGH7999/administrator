@@ -79,6 +79,7 @@ const fetchSchools = async () => {
 }
 useEffect(() => {
   fetchSchools();
+   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [page, city, state]);
 
 
@@ -96,7 +97,7 @@ useEffect(() => {
     setLoading(true);
 
     try {
-      const res = await axios.post("/api/schools", form);
+      const res = await axios.post("/api/schools", form, { withCredentials: true });
 
       if (res.data.success) {
         setSuccess("School registered successfully!");
@@ -110,6 +111,10 @@ useEffect(() => {
           city: "",
           state: "",
         });
+
+        // Refresh the school list after adding
+        setPage(1);
+        fetchSchools();
       }
     } catch (err: unknown) {
       let message = "Error in register school";

@@ -39,7 +39,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    if (!user.password) {
+      return new NextResponse(
+        JSON.stringify({ success: false, message: "User has no password set" }),
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
+    const match = await bcrypt.compare(password, user.password!);
     if (!match) {
       return new NextResponse(
         JSON.stringify({ success: false, message: "Invalid credentials" }),
@@ -53,6 +60,7 @@ export async function POST(req: NextRequest) {
       { expiresIn: remember ? "30d" : "7d" }
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...safeUser } = user.toObject();
 
     const school = user.schoolId ? await School.findById(user.schoolId) : null;

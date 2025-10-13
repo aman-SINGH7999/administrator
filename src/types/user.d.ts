@@ -24,6 +24,7 @@ export interface IUser {
     avatar?: string;
     phone?: string;
     gender?: "male" | "female" | "other";
+    moreInfo?: string;
   };
 
   // Student fields
@@ -36,13 +37,11 @@ export interface IUser {
 
   // Teacher fields
   teacher?: {
-    employeeId?: string;
     subjectSpecialization?: string[];
   };
 
   // Staff fields
   staff?: {
-    employeeId?: string;
     department?: string;
   };
 }

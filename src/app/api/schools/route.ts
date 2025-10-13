@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db"; // apna DB connect function
+import bcrypt from "bcrypt";
 import { School } from "@/models/School";
+import { User } from "@/models/User";
 import { sendEmail } from "@/lib/mailer";
 import { checkRole } from "@/lib/utils";
 import type { FilterQuery } from "mongoose";
 import type { ISchool } from "@/types/school";
 import { verifyAuth } from "@/lib/auth";
 import RegistrationSuccessTemplate from "@/components/mails/RegistrationSuccessTemplate";
+
+// Random password generator function
+function generatePassword(length = 8) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
+  let pass = "";
+  for (let i = 0; i < length; i++) {
+    pass += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return pass;
+}
 
 export async function POST(req: NextRequest) {
   const auth = await verifyAuth(req);
@@ -35,7 +47,7 @@ export async function POST(req: NextRequest) {
 
 
 
-    const count = await School.countDocuments() + 1000;
+    const count = (await School.countDocuments()) + 1000;
 
     const schoolCode = state?.[0]+city?.[0]+name?.[0]+'-'+ count;
 
@@ -46,6 +58,14 @@ export async function POST(req: NextRequest) {
     if (existing) {
       return NextResponse.json(
         { success: false, message: "School with this email or code already exists." },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json(
+        { success: false, message: "User with this email already exists." },
         { status: 400 }
       );
     }
@@ -63,8 +83,23 @@ export async function POST(req: NextRequest) {
       createdBy : userId,
     });
 
-    await sendEmail(email, "School registration", RegistrationSuccessTemplate(name, owner));
-    return NextResponse.json({ success: true, data: newSchool }, { status: 201 });
+    // Generate password
+    const plainPassword = generatePassword(10);
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
+    const schoolAdmin = await User.create({
+      schoolId: newSchool._id,
+      name: owner,
+      email,
+      password: hashedPassword,
+      role: "school_admin",
+      profile: {
+        phone,
+      },
+    });
+
+    await sendEmail(email, "School registration", RegistrationSuccessTemplate(name, owner, email, plainPassword));
+    return NextResponse.json({ success: true, data: newSchool, admin: schoolAdmin }, { status: 201 });
   } catch (error) {
     console.error("Register school error:", error);
     return NextResponse.json(

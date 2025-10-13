@@ -55,14 +55,12 @@ const UserSchema = new Schema<IUser>(
     },
 
     // Teacher-specific
-    teacher: {
-      employeeId: String,
+    teacher: { 
       subjectSpecialization: [String],
     },
 
     // Staff-specific
     staff: {
-      employeeId: String,
       department: String,
     },
 
@@ -70,6 +68,7 @@ const UserSchema = new Schema<IUser>(
       avatar: String,
       phone: String,
       gender: { type: String, enum: ["male", "female", "other"] },
+      moreInfo: String,
     },
     resetOtp: {type: String},
     lastLogin: { type: Date, default: null },
