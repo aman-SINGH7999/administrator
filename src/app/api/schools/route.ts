@@ -4,21 +4,12 @@ import bcrypt from "bcrypt";
 import { School } from "@/models/School";
 import { User } from "@/models/User";
 import { sendEmail } from "@/lib/mailer";
-import { checkRole } from "@/lib/utils";
+import { checkRole, generatePassword } from "@/lib/utils";
 import type { FilterQuery } from "mongoose";
 import type { ISchool } from "@/types/school";
 import { verifyAuth } from "@/lib/auth";
 import RegistrationSuccessTemplate from "@/components/mails/RegistrationSuccessTemplate";
 
-// Random password generator function
-function generatePassword(length = 8) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
-  let pass = "";
-  for (let i = 0; i < length; i++) {
-    pass += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return pass;
-}
 
 export async function POST(req: NextRequest) {
   const auth = await verifyAuth(req);

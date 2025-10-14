@@ -17,6 +17,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  if (req.method === "OPTIONS") return NextResponse.next();
 
   const rawToken = req.cookies.get("token")?.value;
   if (!rawToken) {

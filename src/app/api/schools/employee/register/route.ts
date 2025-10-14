@@ -7,16 +7,8 @@ import { sendEmail } from "@/lib/mailer";
 import EmployeeRegistrationTemplate from "@/components/mails/EmployeeRegistrationTemplate";
 import { getCorsHeaders, handlePreflight } from "@/lib/cors";
 import { IUser } from "@/types/user";
+import { generatePassword } from "@/lib/utils";
 
-// Random password generator
-function generatePassword(length = 10) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
-  let pass = "";
-  for (let i = 0; i < length; i++) {
-    pass += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return pass;
-}
 
 // OPTIONS preflight
 export async function OPTIONS(req: NextRequest) {
