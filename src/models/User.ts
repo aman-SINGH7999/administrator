@@ -33,7 +33,12 @@ const UserSchema = new Schema<IUser>(
       },
     },
 
-    password: { type: String, required: true, minlength: 8 },
+    password: { 
+      type: String, 
+      required: function () {
+        return this.role === "student";
+      },
+      minlength: 8 },
 
     role: {
       type: String,
@@ -43,9 +48,9 @@ const UserSchema = new Schema<IUser>(
 
     // Student-specific
     student: {
-      class: String,
-      section: String,
-      admissionNo: String,
+      standard: { type: String },
+      section: { type: String },
+      admissionNo: { type: String },
       dob: {
         type: Date,
         required: function () {

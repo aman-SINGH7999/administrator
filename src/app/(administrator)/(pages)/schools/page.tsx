@@ -25,6 +25,7 @@ import axios from "axios";
 import { ComboBox } from '@/components/SearchableDropdown';
 import { ISchool } from '@/types/school';
 import { TableSkeleton } from '@/components/Skeletons';
+import { toast } from 'sonner';
 
 
 
@@ -34,7 +35,6 @@ export default function Page() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [city, setCity] = useState<string>("");
   const [state, setState] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
@@ -93,15 +93,14 @@ useEffect(() => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
     setLoading(true);
 
     try {
       const res = await axios.post("/api/schools", form, { withCredentials: true });
 
       if (res.data.success) {
-        setSuccess("School registered successfully!");
         setOpen(false);
+        toast.success("School registered successfully.")
         setForm({
           name: "",
           owner: "",
@@ -307,7 +306,6 @@ useEffect(() => {
             {/* Error / Success */}
             <div className="md:col-span-2">
               {error && <p className="text-red-500 text-sm">{error}</p>}
-              {success && <p className="text-green-600 text-sm">{success}</p>}
             </div>
 
             {/* Submit */}

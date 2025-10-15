@@ -9,6 +9,7 @@ export type UserRole =
   | "staff";
 
 export interface IUser {
+  _id?: Types.ObjectId;
   schoolId?: Types.ObjectId;
   name: string;
   email?: string;
@@ -29,7 +30,7 @@ export interface IUser {
 
   // Student fields
   student?: {
-    class?: string;
+    standard?: string;
     section?: string;
     admissionNo?: string;
     dob: Date;
