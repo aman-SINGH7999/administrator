@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { getCorsHeaders, handlePreflight } from "@/lib/cors";
-import { checkRole } from "@/lib/utils";
+import { checkRole, dateDMYFormate } from "@/lib/utils";
 import bcrypt from'bcrypt'
 import { IUser } from "@/types/user";
 import mongoose, { FilterQuery } from "mongoose";
@@ -121,12 +121,21 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: "Roll No. already registered" }, { status: 400, headers: corsHeaders });
     }
 
+    // Inside POST before password generation
+    const today = new Date();
+    if (new Date(dob) > today) {
+      return NextResponse.json(
+        { error: "DOB cannot be in the future" },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
     // Generate password
-    const dateObj = new Date(dob);
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const year = dateObj.getFullYear();
-    const plainPassword = `${day}${month}${year}`;
+    // const dateObj = new Date(dob);
+    // const day = String(dateObj.getDate()).padStart(2, '0');
+    // const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    // const year = dateObj.getFullYear();
+    const plainPassword = dateDMYFormate(dob)
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
     // Create user data
